@@ -14,5 +14,5 @@ and layers optional, explicitly-gated capabilities on top:
   * restore.py   — opt-in, confirm-gated, audited restore orchestration.
 """
 
-__version__ = "2.0.1"
+__version__ = "2.1.0"
 __all__ = ["vb365", "analysis", "graph", "cloud", "actions", "restore"]

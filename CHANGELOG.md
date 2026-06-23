@@ -4,7 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project uses semantic
 versioning.
 
-## [Unreleased]
+## [2.1.0] - 2026-06-23
+
+> **Breaking (HTTP transport only):** the HTTP transport now binds `127.0.0.1` by
+> default and refuses to start without `MCP_AUTH_TOKEN` (or an explicit
+> `MCP_ALLOW_UNAUTHENTICATED_HTTP=true`), and it no longer registers the
+> write/restore tools unless `TB_ALLOW_WRITE_OVER_HTTP=true`. The default stdio
+> transport is unaffected.
 
 ### Security
 - `vb365_get` and the internal client no longer accept absolute URLs. Resource

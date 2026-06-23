@@ -146,7 +146,20 @@ claude mcp add --transport http tractorbeeam365 http://<host>:8766/mcp \
   --header "Authorization: Bearer <token>"
 ```
 
-To publish:
+### Prebuilt images
+
+Each GitHub Release publishes a multi-tag image via CI
+([.github/workflows/publish.yml](.github/workflows/publish.yml)):
+
+```bash
+# GitHub Container Registry (published automatically on every release):
+docker pull ghcr.io/ringosystems/tractorbeeam-mcp:latest
+# Docker Hub (published when the DOCKERHUB_USERNAME / DOCKERHUB_TOKEN repo
+# secrets are configured):
+docker pull ringosystems/tractorbeeam365-mcp:latest
+```
+
+To publish manually instead:
 
 ```bash
 docker build -t <dockerhubuser>/tractorbeeam365-mcp:latest .
