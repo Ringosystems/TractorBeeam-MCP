@@ -1,10 +1,12 @@
-name: Publish container image
+name: Publish
 
-# Publishes the container image on every GitHub Release.
-#   - GitHub Container Registry (GHCR): always, using the built-in GITHUB_TOKEN.
-#   - Docker Hub: only if the DOCKERHUB_USERNAME / DOCKERHUB_TOKEN repo secrets
-#     are set (Settings -> Secrets and variables -> Actions).
-# Trigger manually any time with: gh workflow run publish.yml
+# On every GitHub Release this:
+#   1. builds the container image and pushes it to GHCR (always) and Docker Hub
+#      (only when the DOCKERHUB_USERNAME / DOCKERHUB_TOKEN repo secrets are set),
+#   2. publishes the server to the official MCP Registry via GitHub OIDC (no
+#      secrets needed).
+# The image version/tags come from tractorbeeam365/__init__.py, so a manual
+# workflow_dispatch re-run produces the same tags as the release.
 
 on:
   release:
@@ -12,7 +14,7 @@ on:
   workflow_dispatch:
 
 env:
-  GHCR_IMAGE: ghcr.io/${{ github.repository }}
+  GHCR_IMAGE: ghcr.io/ringosystems/tractorbeeam-mcp
   DOCKERHUB_IMAGE: docker.io/ringosystems/tractorbeeam365-mcp
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
 
@@ -22,12 +24,20 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
     steps:
       - uses: actions/checkout@v4
 
+      - name: Resolve version from package
+        id: ver
+        run: |
+          V=$(grep -oP '__version__\s*=\s*"\K[^"]+' tractorbeeam365/__init__.py)
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          echo "Building version $V"
+
       - uses: docker/setup-buildx-action@v3
 
-      # --- GHCR (always) -------------------------------------------------------
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
@@ -35,26 +45,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: GHCR metadata (tags + labels)
-        id: ghcr_meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.GHCR_IMAGE }}
-          tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=latest
-
       - name: Build and push to GHCR
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ${{ steps.ghcr_meta.outputs.tags }}
-          labels: ${{ steps.ghcr_meta.outputs.labels }}
           provenance: false
+          tags: |
+            ${{ env.GHCR_IMAGE }}:${{ steps.ver.outputs.version }}
+            ${{ env.GHCR_IMAGE }}:latest
 
-      # --- Docker Hub (only when the secret is configured) ---------------------
       - name: Log in to Docker Hub
         if: ${{ env.DOCKERHUB_USERNAME != '' }}
         uses: docker/login-action@v3
@@ -62,23 +62,43 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Docker Hub metadata (tags + labels)
-        id: dh_meta
-        if: ${{ env.DOCKERHUB_USERNAME != '' }}
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.DOCKERHUB_IMAGE }}
-          tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=latest
-
       - name: Build and push to Docker Hub
         if: ${{ env.DOCKERHUB_USERNAME != '' }}
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ${{ steps.dh_meta.outputs.tags }}
-          labels: ${{ steps.dh_meta.outputs.labels }}
           provenance: false
+          tags: |
+            ${{ env.DOCKERHUB_IMAGE }}:${{ steps.ver.outputs.version }}
+            ${{ env.DOCKERHUB_IMAGE }}:latest
+
+  publish-mcp-registry:
+    needs: build-push
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # required for MCP Registry OIDC auth
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sync server.json version + image tag to the release
+        env:
+          VERSION: ${{ needs.build-push.outputs.version }}
+        run: |
+          jq --arg v "$VERSION" \
+             '.version = $v
+              | .packages[0].version = $v
+              | .packages[0].identifier = "ghcr.io/ringosystems/tractorbeeam-mcp:" + $v' \
+             server.json > server.tmp && mv server.tmp server.json
+          echo "--- server.json ---"; cat server.json
+
+      - name: Install mcp-publisher
+        run: |
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+
+      - name: Authenticate to the MCP Registry (GitHub OIDC)
+        run: ./mcp-publisher login github-oidc
+
+      - name: Publish to the MCP Registry
+        run: ./mcp-publisher publish

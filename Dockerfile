@@ -1,14 +1,22 @@
-# TractorBeeam365 MCP — persistent HTTP MCP service for Veeam Backup for
-# Microsoft 365 (independent; not affiliated with Veeam Software).
+# TractorBeeam365 MCP — container image for Veeam Backup for Microsoft 365
+# (independent; not affiliated with Veeam Software).
 # Build:  docker build -t tractorbeeam365-mcp .
 # No secrets are baked in; VB365_*/GRAPH_*/TB_* are supplied at runtime.
 # Ships READ-ONLY by default; set TB_ENABLE_ACTIONS=true + TB_ALLOW_* to enable
 # the gated action/restore tools.
+#
+# Defaults to the stdio transport so MCP clients can run it directly
+# (`docker run -i ...`), which is how the MCP Registry OCI package is consumed.
+# For the persistent HTTP service, set MCP_TRANSPORT=streamable-http (docker-compose
+# does this) plus MCP_AUTH_TOKEN.
 FROM python:3.12-slim
+
+# Ownership marker required by the MCP Registry to verify this image belongs to
+# the published server (must equal the server.json "name").
+LABEL io.modelcontextprotocol.server.name="io.github.ringosystems/tractorbeeam-mcp"
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    MCP_TRANSPORT=streamable-http \
     MCP_HOST=0.0.0.0 \
     MCP_PORT=8000 \
     VB365_PORT=4443 \

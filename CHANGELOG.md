@@ -4,6 +4,19 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project uses semantic
 versioning.
 
+## [2.1.1] - 2026-06-23
+
+### Added
+- Published to the official MCP Registry as `io.github.ringosystems/tractorbeeam-mcp`
+  (OCI package on GHCR), with `server.json` and an OIDC-based publish workflow.
+
+### Changed
+- The container image now defaults to the **stdio** transport so MCP clients can
+  run it directly (`docker run -i ...`); `docker-compose` still sets
+  `streamable-http` for the persistent HTTP service.
+- Added the `io.modelcontextprotocol.server.name` image label (registry ownership
+  verification).
+
 ## [2.1.0] - 2026-06-23
 
 > **Breaking (HTTP transport only):** the HTTP transport now binds `127.0.0.1` by

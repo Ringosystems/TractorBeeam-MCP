@@ -1,0 +1,39 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.ringosystems/tractorbeeam-mcp",
+  "description": "Independent MCP server for Veeam Backup for Microsoft 365 (VB365): read-only review by default, plus an opt-in, confirm-gated, audited action/restore tier.",
+  "repository": {
+    "url": "https://github.com/Ringosystems/TractorBeeam-MCP",
+    "source": "github"
+  },
+  "version": "2.1.1",
+  "packages": [
+    {
+      "registryType": "oci",
+      "identifier": "ghcr.io/ringosystems/tractorbeeam-mcp:2.1.1",
+      "version": "2.1.1",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "VB365_HOST",
+          "description": "IP or hostname of the VB365 (Veeam Backup Server) host",
+          "isRequired": true
+        },
+        {
+          "name": "VB365_USERNAME",
+          "description": "VB365 account used to obtain a REST API token (DOMAIN\\\\user, .\\\\localuser, or user@domain)",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "VB365_PASSWORD",
+          "description": "Password for VB365_USERNAME",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}

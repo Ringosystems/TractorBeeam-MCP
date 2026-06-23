@@ -105,6 +105,17 @@ claude mcp add tractorbeeam365 --scope user -- "<repo>\.venv\Scripts\python.exe"
 
 > On Linux/macOS use forward slashes and `<repo>/.venv/bin/python`.
 
+It is also published to the [MCP Registry](https://registry.modelcontextprotocol.io)
+as `io.github.ringosystems/tractorbeeam-mcp` (an OCI image on GHCR), so MCP
+clients that support the registry can install it directly. To run the published
+image as a stdio server:
+
+```bash
+docker run -i --rm \
+  -e VB365_HOST=... -e VB365_USERNAME=... -e VB365_PASSWORD=... \
+  ghcr.io/ringosystems/tractorbeeam-mcp:latest
+```
+
 Then ask: **"Run a VB365 health summary and tell me if anything is misconfigured."**
 
 ## Enabling the action / restore tier
