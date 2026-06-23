@@ -7,7 +7,7 @@ versioning.
 ## [2.1.1] - 2026-06-23
 
 ### Added
-- Published to the official MCP Registry as `io.github.ringosystems/tractorbeeam-mcp`
+- Published to the official MCP Registry as `io.github.Ringosystems/tractorbeeam-mcp`
   (OCI package on GHCR), with `server.json` and an OIDC-based publish workflow.
 
 ### Changed

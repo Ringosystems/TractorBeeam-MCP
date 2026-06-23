@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.ringosystems/tractorbeeam-mcp",
+  "name": "io.github.Ringosystems/tractorbeeam-mcp",
   "description": "MCP server for Veeam Backup for Microsoft 365: read-only review + gated, audited restore tier.",
   "repository": {
     "url": "https://github.com/Ringosystems/TractorBeeam-MCP",

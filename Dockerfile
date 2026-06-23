@@ -13,7 +13,7 @@ FROM python:3.12-slim
 
 # Ownership marker required by the MCP Registry to verify this image belongs to
 # the published server (must equal the server.json "name").
-LABEL io.modelcontextprotocol.server.name="io.github.ringosystems/tractorbeeam-mcp"
+LABEL io.modelcontextprotocol.server.name="io.github.Ringosystems/tractorbeeam-mcp"
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
