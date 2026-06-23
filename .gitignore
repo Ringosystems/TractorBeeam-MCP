@@ -1,0 +1,15 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+# Local IDE / agent tooling config (never publish)
+.claude/
+review-data.json
+review-facts.json
+# Operator-tier runtime artifacts (never commit restored data or audit trails)
+audit/
+downloads/
+*.pst
+# Local-only / personal troubleshooting scripts (kept on disk, never published)
+Verify-VB365-MailboxSizes.ps1
+*.local.ps1

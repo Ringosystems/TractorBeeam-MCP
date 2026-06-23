@@ -1,0 +1,36 @@
+# TractorBeeam365 MCP — persistent MCP service (HTTP transport) for UNRAID/Docker.
+# An independent tool for Veeam Backup for Microsoft 365; not affiliated with Veeam.
+#
+#   docker compose up -d --build      # build locally and run (READ-ONLY by default)
+#
+# Credentials come from ./.env (git-ignored) — never baked into the image.
+# To turn on the gated action/restore tools, set TB_ENABLE_ACTIONS=true and the
+# relevant TB_ALLOW_* flags in .env (ideally on a SEPARATE "operator" instance).
+services:
+  tractorbeeam365:
+    build: .
+    image: tractorbeeam365-mcp:local   # retag to your own namespace to publish
+    container_name: tractorbeeam365-mcp
+    restart: unless-stopped
+    ports:
+      - "8766:8000"            # host:container
+    env_file:
+      - .env                   # VB365_* (+ optional GRAPH_*, B2_*/S3_*, TB_*)
+                               # MUST include MCP_AUTH_TOKEN=<secret> (HTTP fails
+                               # closed without it) unless you set
+                               # MCP_ALLOW_UNAUTHENTICATED_HTTP=true.
+    environment:
+      MCP_TRANSPORT: "streamable-http"
+      MCP_HOST: "0.0.0.0"      # bind all interfaces INSIDE the container; the
+                               # published port is the real network boundary
+      MCP_PORT: "8000"
+    volumes:
+      # Persist the audit log + generated files when the operator tier is enabled.
+      - ./audit:/app/audit
+      - ./downloads:/app/downloads
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os,socket; socket.create_connection(('127.0.0.1', int(os.getenv('MCP_PORT','8000'))), 3).close()"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

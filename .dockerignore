@@ -1,0 +1,20 @@
+# Never ship secrets or local cruft into the image
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+*.pyc
+review-*.json
+.git
+.gitignore
+# No PowerShell helper or docs belong in the Linux image (the Dockerfile only
+# copies requirements.txt, server.py, and tractorbeeam365/).
+*.ps1
+*.md
+LICENSE
+# Operator-tier runtime artifacts
+audit/
+downloads/
+*.pst
+tests/
