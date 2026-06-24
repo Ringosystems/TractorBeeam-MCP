@@ -1,0 +1,42 @@
+name: CI
+
+# Validates the package and that the container image builds and imports cleanly
+# on its base (no registry push). Gates changes to the Dockerfile / dependencies.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps + run unit tests
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pytest
+          python -m pytest -q tests/
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build image (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: tractorbeeam365-mcp:ci
+      - name: Smoke test (imports resolve on the image base, incl. compiled wheels)
+        run: |
+          docker run --rm -e VB365_HOST=x -e VB365_USERNAME=x -e VB365_PASSWORD=x \
+            tractorbeeam365-mcp:ci \
+            python -c "import httpx, boto3, cryptography, pydantic_core, server, tractorbeeam365.restore, tractorbeeam365.cloud; print('import OK')"

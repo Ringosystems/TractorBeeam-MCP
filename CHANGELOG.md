@@ -4,6 +4,20 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project uses semantic
 versioning.
 
+## [2.1.3] - 2026-06-23
+
+### Security
+- Switched the container base image from `python:3.12-slim` (Debian) to
+  `python:3.12-alpine`. The Debian base carried ~149 OS CVEs (including 2 critical
+  and 9 high) that had no upstream fix; the musl/Alpine base reduces that surface
+  to near zero. All dependencies install from prebuilt musllinux wheels.
+- Upgrade `pip` during the image build, clearing the only fixable Python-package
+  advisories (CVE-2025-8869, CVE-2026-3219, CVE-2026-6357, CVE-2026-1703).
+
+### Added
+- CI workflow (`ci.yml`): unit tests plus a container build and import smoke test
+  (no registry push) to gate Dockerfile/dependency changes.
+
 ## [2.1.2] - 2026-06-23
 
 ### Added
