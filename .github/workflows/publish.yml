@@ -84,16 +84,11 @@ jobs:
             org.opencontainers.image.version=${{ steps.ver.outputs.version }}
             org.opencontainers.image.revision=${{ github.sha }}
 
-      - name: Update Docker Hub description (overview = README)
-        if: ${{ env.DOCKERHUB_USERNAME != '' && steps.dh_login.outcome == 'success' }}
-        continue-on-error: true
-        uses: peter-evans/dockerhub-description@v4
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: ringosystems/tractorbeeam365-mcp
-          short-description: "MCP server for Veeam Backup for Microsoft 365: read-only review + gated, audited restore tier."
-          readme-filepath: ./README.md
+      # NOTE: the Docker Hub repository description/overview is NOT synced here.
+      # That API only accepts the account password, not a Personal Access Token,
+      # so it cannot be automated for a token-only (or SSO) account. Set the
+      # short description and overview once in the Docker Hub UI; the image itself
+      # already carries org.opencontainers.image.* metadata labels.
 
   publish-mcp-registry:
     needs: build-push
