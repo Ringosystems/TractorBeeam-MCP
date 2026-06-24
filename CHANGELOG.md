@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project uses semantic
 versioning.
 
+## [2.1.2] - 2026-06-23
+
+### Added
+- Richer published metadata: `title` and `websiteUrl` in the MCP Registry entry,
+  standard `org.opencontainers.image.*` labels on the container image, and the
+  README synced to the Docker Hub repository overview on each release.
+
 ## [2.1.1] - 2026-06-23
 
 ### Added

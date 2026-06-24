@@ -15,6 +15,14 @@ FROM python:3.12-slim
 # the published server (must equal the server.json "name").
 LABEL io.modelcontextprotocol.server.name="io.github.Ringosystems/tractorbeeam-mcp"
 
+# Standard OCI image metadata (surfaced by registries and `docker inspect`).
+LABEL org.opencontainers.image.title="TractorBeeam365 MCP" \
+      org.opencontainers.image.description="Independent MCP server for Veeam Backup for Microsoft 365 (VB365): read-only review by default, plus an opt-in, confirm-gated, audited action/restore tier." \
+      org.opencontainers.image.url="https://github.com/Ringosystems/TractorBeeam-MCP" \
+      org.opencontainers.image.source="https://github.com/Ringosystems/TractorBeeam-MCP" \
+      org.opencontainers.image.documentation="https://github.com/Ringosystems/TractorBeeam-MCP/blob/main/README.md" \
+      org.opencontainers.image.licenses="MIT"
+
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     MCP_HOST=0.0.0.0 \

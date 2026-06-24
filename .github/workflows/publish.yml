@@ -54,6 +54,9 @@ jobs:
           tags: |
             ${{ env.GHCR_IMAGE }}:${{ steps.ver.outputs.version }}
             ${{ env.GHCR_IMAGE }}:latest
+          labels: |
+            org.opencontainers.image.version=${{ steps.ver.outputs.version }}
+            org.opencontainers.image.revision=${{ github.sha }}
 
       - name: Log in to Docker Hub
         if: ${{ env.DOCKERHUB_USERNAME != '' }}
@@ -72,6 +75,19 @@ jobs:
           tags: |
             ${{ env.DOCKERHUB_IMAGE }}:${{ steps.ver.outputs.version }}
             ${{ env.DOCKERHUB_IMAGE }}:latest
+          labels: |
+            org.opencontainers.image.version=${{ steps.ver.outputs.version }}
+            org.opencontainers.image.revision=${{ github.sha }}
+
+      - name: Update Docker Hub description (overview = README)
+        if: ${{ env.DOCKERHUB_USERNAME != '' }}
+        uses: peter-evans/dockerhub-description@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ringosystems/tractorbeeam365-mcp
+          short-description: "MCP server for Veeam Backup for Microsoft 365: read-only review + gated, audited restore tier."
+          readme-filepath: ./README.md
 
   publish-mcp-registry:
     needs: build-push
