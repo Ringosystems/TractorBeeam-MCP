@@ -143,11 +143,12 @@ read-only.
 
 ## Run as a persistent service (Docker / UNRAID)
 
-The image runs `streamable-http` on `0.0.0.0:8000` inside the container,
-**read-only** (no `TB_*` flags). No credentials are baked in. The HTTP transport
-**fails closed**: it refuses to start unless you set `MCP_AUTH_TOKEN` (clients
-then send `Authorization: Bearer <token>`), or you explicitly accept the risk
-with `MCP_ALLOW_UNAUTHENTICATED_HTTP=true`.
+The image itself defaults to the stdio transport (so MCP clients can `docker run
+-i` it). Via `docker compose` it runs `streamable-http` on `0.0.0.0:8000` inside
+the container, **read-only** (no `TB_*` flags). No credentials are baked in. The
+HTTP transport **fails closed**: it refuses to start unless you set
+`MCP_AUTH_TOKEN` (clients then send `Authorization: Bearer <token>`), or you
+explicitly accept the risk with `MCP_ALLOW_UNAUTHENTICATED_HTTP=true`.
 
 ```bash
 # Put MCP_AUTH_TOKEN=<a long random secret> in .env first.
