@@ -4,6 +4,21 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project uses semantic
 versioning.
 
+## [2.2.0] - 2026-06-30
+
+### Added
+- **Multi-arch images.** The release workflow now builds and pushes
+  `linux/amd64` **and** `linux/arm64` to GHCR and Docker Hub (QEMU emulation for
+  arm64, with a shared buildx layer cache so the emulated build is paid once).
+  The image now runs natively on Apple Silicon, Raspberry Pi, and ARM cloud
+  hosts in addition to x86.
+- **Zero-build deploy:** `docker-compose.deploy.yml` runs the prebuilt GHCR image
+  with no clone or local build (`docker compose -f docker-compose.deploy.yml up -d`).
+- **Unraid template:** `deploy/unraid/tractorbeeam365.xml`, a Community
+  Applications template installable by URL (or submittable to the CA feed).
+- README **Quick deploy** section with copy-paste Compose, Unraid, and stdio
+  one-liners against the published image.
+
 ## [2.1.3] - 2026-06-23
 
 ### Security

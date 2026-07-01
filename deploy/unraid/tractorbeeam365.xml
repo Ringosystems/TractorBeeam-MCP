@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<!--
+  Unraid Community Applications template for TractorBeeam365 MCP.
+
+  Install options:
+    * Add by URL: Unraid > Docker > Add Container > Template, paste
+      https://raw.githubusercontent.com/Ringosystems/TractorBeeam-MCP/main/deploy/unraid/tractorbeeam365.xml
+    * Or install from Community Applications once this template is submitted to
+      the CA app feed.
+
+  Runs the persistent HTTP (streamable-http) service, read-only by default.
+  The HTTP transport FAILS CLOSED: set MCP_AUTH_TOKEN to a long random secret, or
+  the container will refuse to start. Clients then send Authorization: Bearer <token>.
+-->
+<Container version="2">
+  <Name>TractorBeeam365-MCP</Name>
+  <Repository>ghcr.io/ringosystems/tractorbeeam-mcp:latest</Repository>
+  <Registry>https://github.com/Ringosystems/TractorBeeam-MCP/pkgs/container/tractorbeeam-mcp</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/Ringosystems/TractorBeeam-MCP/issues</Support>
+  <Project>https://github.com/Ringosystems/TractorBeeam-MCP</Project>
+  <Overview>Independent Model Context Protocol (MCP) server for Veeam Backup for Microsoft 365 (VB365). It talks directly to the VB365 REST API so an MCP client (Claude Code, Claude Desktop) can review your backup configuration, find protection gaps, spot trends, and verify cloud immutability. Read-only by default; an opt-in, confirm-token-gated, audited action/restore tier can be enabled with the TB_* variables. Not affiliated with, endorsed by, or supported by Veeam Software. After starting, attach a client to http://[IP]:[PORT:8766]/mcp with the Authorization: Bearer header set to your MCP_AUTH_TOKEN.</Overview>
+  <Category>Backup: Tools: Network:Management</Category>
+  <WebUI/>
+  <TemplateURL>https://raw.githubusercontent.com/Ringosystems/TractorBeeam-MCP/main/deploy/unraid/tractorbeeam365.xml</TemplateURL>
+  <Icon>https://github.com/Ringosystems.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DonateText/>
+  <DonateLink/>
+  <Description>Independent MCP server for Veeam Backup for Microsoft 365 (VB365): read-only review by default, plus an opt-in, confirm-gated, audited action/restore tier. HTTP transport fails closed without MCP_AUTH_TOKEN.</Description>
+  <Networking>
+    <Mode>bridge</Mode>
+    <Publish>
+      <Port>
+        <HostPort>8766</HostPort>
+        <ContainerPort>8000</ContainerPort>
+        <Protocol>tcp</Protocol>
+      </Port>
+    </Publish>
+  </Networking>
+  <Data>
+    <Volume>
+      <HostDir>/mnt/user/appdata/tractorbeeam365/audit</HostDir>
+      <ContainerDir>/app/audit</ContainerDir>
+      <Mode>rw</Mode>
+    </Volume>
+    <Volume>
+      <HostDir>/mnt/user/appdata/tractorbeeam365/downloads</HostDir>
+      <ContainerDir>/app/downloads</ContainerDir>
+      <Mode>rw</Mode>
+    </Volume>
+  </Data>
+  <!-- Env vars are defined canonically by the <Config Type="Variable"> entries
+       below; Unraid materialises each into a `-e NAME=value` on the run line. Do
+       not also hand-author a populated <Environment> block (it double-renders). -->
+  <Environment/>
+
+  <!-- Port -->
+  <Config Name="MCP HTTP Port" Target="8000" Default="8766" Mode="tcp" Description="Host port for the MCP streamable-http endpoint (served at /mcp)." Type="Port" Display="always" Required="true" Mask="false">8766</Config>
+
+  <!-- Required VB365 connection -->
+  <Config Name="VB365_HOST" Target="VB365_HOST" Default="" Mode="" Description="IP or hostname of the VB365 (Veeam Backup Server) host." Type="Variable" Display="always" Required="true" Mask="false"></Config>
+  <Config Name="VB365_USERNAME" Target="VB365_USERNAME" Default=".\svc-vb365-review" Mode="" Description="VB365 account used to obtain a REST API token (DOMAIN\user, .\localuser, or user@domain)." Type="Variable" Display="always" Required="true" Mask="false">.\svc-vb365-review</Config>
+  <Config Name="VB365_PASSWORD" Target="VB365_PASSWORD" Default="" Mode="" Description="Password for VB365_USERNAME." Type="Variable" Display="always" Required="true" Mask="true"></Config>
+
+  <!-- Required HTTP auth -->
+  <Config Name="MCP_AUTH_TOKEN" Target="MCP_AUTH_TOKEN" Default="" Mode="" Description="A long random secret. The HTTP transport refuses to start without it. Clients must send the header Authorization: Bearer &lt;this value&gt;." Type="Variable" Display="always" Required="true" Mask="true"></Config>
+
+  <!-- Transport (leave as-is for the HTTP service) -->
+  <Config Name="MCP_TRANSPORT" Target="MCP_TRANSPORT" Default="streamable-http" Mode="" Description="Leave as streamable-http for the persistent HTTP service." Type="Variable" Display="advanced" Required="true" Mask="false">streamable-http</Config>
+  <Config Name="MCP_HOST" Target="MCP_HOST" Default="0.0.0.0" Mode="" Description="Bind address inside the container. Keep 0.0.0.0 so the published port is reachable; the Unraid port publish is the real network boundary." Type="Variable" Display="advanced" Required="true" Mask="false">0.0.0.0</Config>
+  <Config Name="MCP_PORT" Target="MCP_PORT" Default="8000" Mode="" Description="Container-internal port the server listens on. Match the container side of the port mapping." Type="Variable" Display="advanced" Required="true" Mask="false">8000</Config>
+
+  <!-- VB365 tuning (defaults suit most installs) -->
+  <Config Name="VB365_PORT" Target="VB365_PORT" Default="4443" Mode="" Description="VB365 RESTful API port (console default is 4443)." Type="Variable" Display="advanced" Required="false" Mask="false">4443</Config>
+  <Config Name="VB365_API_VERSION" Target="VB365_API_VERSION" Default="v8" Mode="" Description="VB365 REST API version (v8 for VB365 8.x, v7 for 7.x)." Type="Variable" Display="advanced" Required="false" Mask="false">v8</Config>
+  <Config Name="VB365_VERIFY_SSL" Target="VB365_VERIFY_SSL" Default="false" Mode="" Description="Verify the VB365 TLS certificate. false accepts the default self-signed cert. Prefer setting VB365_CA_BUNDLE to the server certificate instead." Type="Variable" Display="advanced" Required="false" Mask="false">false</Config>
+
+  <!-- Operator tier (leave off for a pure read-only reviewer) -->
+  <Config Name="TB_ENABLE_ACTIONS" Target="TB_ENABLE_ACTIONS" Default="false" Mode="" Description="Master switch for the write/restore tools. Leave false for read-only. If enabled, also set the per-category TB_ALLOW_* flags and TB_ALLOW_WRITE_OVER_HTTP=true to expose them over HTTP. See the project SECURITY docs before enabling." Type="Variable" Display="advanced-hide" Required="false" Mask="false">false</Config>
+</Container>

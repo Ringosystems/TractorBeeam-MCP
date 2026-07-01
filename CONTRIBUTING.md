@@ -40,3 +40,10 @@ These invariants are load-bearing for safety. Keep them when you change code.
 - Add or update tests in `tests/` for analysis and gating logic.
 - Do not commit `.env`, real hostnames, tenant data, credentials, or restored
   data. Personal or troubleshooting scripts belong outside the repo.
+
+## Releasing
+
+Bump `__version__` in `tractorbeeam365/__init__.py`, update `CHANGELOG.md`, and
+create a GitHub Release tagged `vX.Y.Z`. That triggers the multi-arch publish to
+GHCR, Docker Hub, and the MCP Registry. The full runbook, one-time setup, and
+troubleshooting are in [PUBLISHING.md](PUBLISHING.md).

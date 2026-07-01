@@ -25,6 +25,62 @@ If you never set the `TB_*` flags, this is a pure read-only reviewer that
 *physically cannot* modify your environment — the action/restore tools aren't even
 registered.
 
+## Quick deploy (prebuilt image)
+
+No clone or build required. From v2.2.0 the image is published **multi-arch
+(amd64 + arm64)** to GitHub Container Registry and Docker Hub, so it runs
+natively on x86 servers, Apple Silicon, and ARM boxes (Raspberry Pi, ARM cloud).
+On an ARM host, pin the `:2.2.0` (or later) tag until a multi-arch `:latest` has
+been published.
+
+### Persistent HTTP service (Docker Compose)
+
+Grab two files and start it:
+
+```bash
+curl -fsSLO https://raw.githubusercontent.com/Ringosystems/TractorBeeam-MCP/main/docker-compose.deploy.yml
+curl -fsSL  https://raw.githubusercontent.com/Ringosystems/TractorBeeam-MCP/main/.env.example -o .env
+# Edit .env: set VB365_HOST / VB365_USERNAME / VB365_PASSWORD and a long MCP_AUTH_TOKEN.
+docker compose -f docker-compose.deploy.yml up -d
+```
+
+MCP is then live at `http://<host>:8766/mcp`. Attach a client with the bearer
+token you set:
+
+```bash
+claude mcp add --transport http tractorbeeam365 http://<host>:8766/mcp \
+  --header "Authorization: Bearer <your MCP_AUTH_TOKEN>"
+```
+
+Update later:
+
+```bash
+docker compose -f docker-compose.deploy.yml pull && docker compose -f docker-compose.deploy.yml up -d
+```
+
+### Unraid (one click)
+
+In Unraid open **Docker → Add Container**, and paste this template URL into the
+**Template** field:
+
+```text
+https://raw.githubusercontent.com/Ringosystems/TractorBeeam-MCP/main/deploy/unraid/tractorbeeam365.xml
+```
+
+Fill in `VB365_HOST`, `VB365_USERNAME`, `VB365_PASSWORD`, and a long
+`MCP_AUTH_TOKEN`, then Apply. The audit and downloads folders map under
+`/mnt/user/appdata/tractorbeeam365/`.
+
+### Single MCP client, no service (stdio)
+
+For a client that launches the server itself, run the image on demand over stdio:
+
+```bash
+docker run -i --rm \
+  -e VB365_HOST=... -e VB365_USERNAME=... -e VB365_PASSWORD=... \
+  ghcr.io/ringosystems/tractorbeeam-mcp:latest
+```
+
 ## Read-only tools (always available)
 
 | Tool | What it returns |
@@ -160,8 +216,10 @@ claude mcp add --transport http tractorbeeam365 http://<host>:8766/mcp \
 
 ### Prebuilt images
 
-Each GitHub Release publishes a multi-tag image via CI
-([.github/workflows/publish.yml](.github/workflows/publish.yml)):
+Each GitHub Release publishes a multi-arch, multi-tag image via CI
+([.github/workflows/publish.yml](.github/workflows/publish.yml)) to GHCR, Docker
+Hub, and the MCP Registry. The full release runbook is in
+[PUBLISHING.md](PUBLISHING.md).
 
 ```bash
 # GitHub Container Registry (published automatically on every release):
@@ -223,4 +281,5 @@ identification (nominative use).
 ## License
 
 Released under the [MIT License](LICENSE). See [SECURITY.md](SECURITY.md) for the
-security model and reporting, and [CONTRIBUTING.md](CONTRIBUTING.md) to contribute.
+security model and reporting, [CONTRIBUTING.md](CONTRIBUTING.md) to contribute, and
+[PUBLISHING.md](PUBLISHING.md) for how releases are built and published.

@@ -11,7 +11,7 @@ An independent **Model Context Protocol (MCP)** server for **Veeam Backup for Mi
 
 ## Tags
 
-- `latest` and the exact version (e.g. `2.1.3`) — Alpine based, minimal CVE surface.
+- `latest` and the exact version (e.g. `2.2.0`), Alpine based (minimal CVE surface), multi-arch (linux/amd64 + linux/arm64).
 
 Also published to GitHub Container Registry at `ghcr.io/ringosystems/tractorbeeam-mcp`.
 

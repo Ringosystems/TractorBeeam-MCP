@@ -1,0 +1,52 @@
+# TractorBeeam365 MCP — ZERO-BUILD deploy. Runs the prebuilt, multi-arch image
+# from GitHub Container Registry (amd64 + arm64), so you do NOT need to clone the
+# repo. An independent tool for Veeam Backup for Microsoft 365; not affiliated
+# with Veeam.
+#
+# Fastest start (only this file + an .env are needed):
+#   1. curl -fsSLO https://raw.githubusercontent.com/Ringosystems/TractorBeeam-MCP/main/docker-compose.deploy.yml
+#   2. curl -fsSL  https://raw.githubusercontent.com/Ringosystems/TractorBeeam-MCP/main/.env.example -o .env
+#      then edit .env: set VB365_HOST/USERNAME/PASSWORD and a long MCP_AUTH_TOKEN.
+#   3. docker compose -f docker-compose.deploy.yml up -d
+#
+# MCP is then live at  http://<host>:8766/mcp . Attach a client with:
+#   claude mcp add --transport http tractorbeeam365 http://<host>:8766/mcp \
+#     --header "Authorization: Bearer <your MCP_AUTH_TOKEN>"
+#
+# Update to the newest image:  docker compose -f docker-compose.deploy.yml pull && \
+#                              docker compose -f docker-compose.deploy.yml up -d
+#
+# Credentials come from ./.env (git-ignored) and are never baked into the image.
+# Read-only by default. To turn on the gated action/restore tools set
+# TB_ENABLE_ACTIONS=true + the relevant TB_ALLOW_* flags in .env, and note the
+# write tools stay hidden over HTTP unless TB_ALLOW_WRITE_OVER_HTTP=true.
+services:
+  tractorbeeam365:
+    # Pin to a version (e.g. :2.2.0) for reproducible deploys; :latest tracks the
+    # newest release.
+    image: ghcr.io/ringosystems/tractorbeeam-mcp:latest
+    container_name: tractorbeeam365-mcp
+    restart: unless-stopped
+    pull_policy: always        # `up -d` re-checks the registry for a newer :latest
+    ports:
+      - "8766:8000"            # host:container
+    env_file:
+      - .env                   # VB365_* (+ optional GRAPH_*, B2_*/S3_*, TB_*)
+                               # MUST include MCP_AUTH_TOKEN=<secret> (HTTP fails
+                               # closed without it) unless you set
+                               # MCP_ALLOW_UNAUTHENTICATED_HTTP=true.
+    environment:
+      MCP_TRANSPORT: "streamable-http"
+      MCP_HOST: "0.0.0.0"      # bind all interfaces INSIDE the container; the
+                               # published port is the real network boundary
+      MCP_PORT: "8000"
+    volumes:
+      # Persist the audit log + generated files when the operator tier is enabled.
+      - ./audit:/app/audit
+      - ./downloads:/app/downloads
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os,socket; socket.create_connection(('127.0.0.1', int(os.getenv('MCP_PORT','8000'))), 3).close()"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
