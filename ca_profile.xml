@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<!-- Unraid Community Applications repository profile. Describes the maintainer and
+     repo for the CA store; the per-app template is deploy/unraid/tractorbeeam365.xml.
+     Submit the repo at https://ca.unraid.net/submit (the portal validates this). -->
+<Maintainer>
+  <Profile>Independent, self-hosted MCP servers maintained by Ringosystems (Steeves and Associates). TractorBeeam365 MCP is a Model Context Protocol server for Veeam Backup for Microsoft 365 (VB365): read-only backup review by default (configuration, health, protection-gap analysis, trends, and cloud immutability cross-check), plus an opt-in, confirm-token-gated, audited action and restore tier. Not affiliated with, endorsed by, or supported by Veeam Software or Microsoft.</Profile>
+  <Icon>https://github.com/Ringosystems.png</Icon>
+  <WebPage>https://github.com/Ringosystems/TractorBeeam-MCP</WebPage>
+  <Forum>https://github.com/Ringosystems/TractorBeeam-MCP/issues</Forum>
+</Maintainer>

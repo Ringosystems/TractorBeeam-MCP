@@ -147,6 +147,22 @@ In short:
   URL, or submit it to Community Applications.
 - **Single MCP client (stdio):** `docker run -i --rm -e VB365_* ghcr.io/ringosystems/tractorbeeam-mcp:latest`.
 
+## Unraid Community Applications submission
+
+The Unraid template lives at
+[deploy/unraid/tractorbeeam365.xml](deploy/unraid/tractorbeeam365.xml) and the
+repository profile at [ca_profile.xml](ca_profile.xml).
+
+- **Immediate (no approval):** users add the template by raw URL in Unraid, Docker,
+  Add Container, Template field. This works as soon as the file is on `main`.
+- **Get it into the CA store (searchable in the Apps tab):** submit the public repo
+  at **https://ca.unraid.net/submit**. The portal live-scans the repo, parses the
+  template XML, validates `ca_profile.xml`, checks for duplicates, and shows a
+  preview before you submit. It is the source of truth for the current
+  requirements. After listing, keep the template working and answer support in the
+  forum thread. If the portal cannot find the template in `deploy/unraid/`, move it
+  to the repo root or a `/templates` folder and resubmit.
+
 ## Troubleshooting
 
 | Symptom | Cause and fix |
